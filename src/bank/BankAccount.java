@@ -1,10 +1,9 @@
 package bank;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalUnit;
-import java.util.GregorianCalendar;
 
 /**
  A bank account has a balance that can be changed by
@@ -12,23 +11,27 @@ import java.util.GregorianCalendar;
  */
 public class BankAccount {
 
-    private double balance;
-    private LocalDateTime lastUpdate;           //the last time, when the interest rate was added to the balance
+    private BigDecimal balance;
+    private LocalDateTime lastUpdate;                           //the last time, when the interest rate was added to the balance
+    private int transactionFeeDivider = 500;                    //divide the transaction amount with this to get the fee
+    private int freeTranactionLimit = 1;                        //number of free transactions, before a fee is charged
+    private int transactions = 0;                               //how many transactions happened without fee?
+    private BigDecimal pendingFee = new BigDecimal("0");    //fee which will be charged on the next balance update
 
-    private static final float INTEREST_RATE = 0.005f;
+    private static final BigDecimal INTEREST_RATE = new BigDecimal("0.005");
 
     /**
      Constructs a bank account with a zero balance.
      */
     public BankAccount() {
-        this(0);
+        this(BigDecimal.ZERO);
     }
 
     /**
      Constructs a bank account with a given balance.
      @param initialBalance the initial balance
      */
-    public BankAccount(double initialBalance) {
+    public BankAccount(BigDecimal initialBalance) {
         balance = initialBalance;
         lastUpdate = LocalDateTime.now();
     }
@@ -37,16 +40,18 @@ public class BankAccount {
      Deposits money into the bank account.
      @param amount the amount to deposit
      */
-    public void deposit(double amount) {
-        balance = balance + amount;
+    public void deposit(BigDecimal amount) {
+        balance = balance.add(amount);
+        generateFee(amount);
     }
 
     /**
      Withdraws money from the bank account.
      @param amount the amount to withdraw
      */
-    public void withdraw(double amount) {
-        balance = balance - amount;
+    public void withdraw(BigDecimal amount) {
+        balance = balance.subtract(amount);
+        generateFee(amount);
     }
 
     /**
@@ -72,19 +77,40 @@ public class BankAccount {
         boolean isLeapYear = (currentYear % 400 == 0) || ((currentYear % 4 == 0) && (currentYear % 100 != 0));
 
         int daysInCurrentYear = isLeapYear ? 366 : 365;
-        long millisInCurrentYear = (long)daysInCurrentYear * 24 * 60 * 60 * 1000;
-        long millisSinceLastUpdate = lastUpdate.until(now, ChronoUnit.MILLIS);
-        double timeFactor = (double)millisSinceLastUpdate / millisInCurrentYear;
+        BigDecimal millisInCurrentYear = BigDecimal.valueOf((long)daysInCurrentYear * 24 * 60 * 60 * 1000);
+        BigDecimal millisSinceLastUpdate = BigDecimal.valueOf(lastUpdate.until(now, ChronoUnit.MILLIS));
+        BigDecimal timeFactor = millisSinceLastUpdate.divide(millisInCurrentYear, MathContext.DECIMAL64);
         lastUpdate = now;
 
-        balance += balance * INTEREST_RATE * timeFactor; //add the interest rate to the balance
+
+        balance = balance.add(balance.multiply(INTEREST_RATE).multiply(timeFactor));      //apply the interest rate
+        balance = balance.subtract(pendingFee);                                           //charge the fee
+        pendingFee = BigDecimal.valueOf(0);                                     //reset the charged fee
+    }
+
+    /**
+     * Calculates and adds the transaction fee to the pending fee. Only if the freeTransactionLimit is exceeded.
+     */
+    private void generateFee(BigDecimal transactionAmount) {
+        if (transactions >=  freeTranactionLimit) {
+            pendingFee = pendingFee.add(transactionAmount.divide(BigDecimal.valueOf((long)transactionFeeDivider)));
+        }
+        transactions++;
     }
 
     /**
      Gets the current balance of the bank account.
      @return the current balance
      */
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
+    }
+
+    public int getTransactionFeeDivider() {
+        return transactionFeeDivider;
+    }
+
+    public void setTransactionFeeDivider(int transactionFeeDivider) {
+        this.transactionFeeDivider = transactionFeeDivider;
     }
 }
