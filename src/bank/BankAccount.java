@@ -1,9 +1,11 @@
 package bank;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 
 /**
  A bank account has a balance that can be changed by
@@ -17,21 +19,28 @@ public class BankAccount {
     private int freeTranactionLimit = 1;                        //number of free transactions, before a fee is charged
     private int transactions = 0;                               //how many transactions happened without fee?
     private BigDecimal pendingFee = new BigDecimal("0");    //fee which will be charged on the next balance update
+    private final int accountNumber;
 
+    private static final int BIC = 55555;
+    private static final int COUNTRY_CODE = 121700;
+    private static final String COUNTRY_CHARS = "CH";
     private static final BigDecimal INTEREST_RATE = new BigDecimal("0.005");
 
     /**
      Constructs a bank account with a zero balance.
+     @param accountNumber identifier for the account
      */
-    public BankAccount() {
-        this(BigDecimal.ZERO);
+    public BankAccount(int accountNumber) {
+        this(accountNumber, BigDecimal.ZERO);
     }
 
     /**
      Constructs a bank account with a given balance.
+     @param accountNumber identifier for the account
      @param initialBalance the initial balance
      */
-    public BankAccount(BigDecimal initialBalance) {
+    public BankAccount(int accountNumber, BigDecimal initialBalance) {
+        this.accountNumber = accountNumber;
         balance = initialBalance;
         lastUpdate = LocalDateTime.now();
     }
@@ -112,5 +121,29 @@ public class BankAccount {
 
     public void setTransactionFeeDivider(int transactionFeeDivider) {
         this.transactionFeeDivider = transactionFeeDivider;
+    }
+
+    public String generateIBAN() {
+        String iBan = String.valueOf(accountNumber);
+        iBan = String.join("", Collections.nCopies(12-iBan.length(), "0")) + iBan;
+        iBan = BIC + iBan;
+        String toDivide = iBan + COUNTRY_CODE;
+        BigInteger toDivideBigInt = new BigInteger(toDivide);
+        String quotient = String.valueOf(98 - toDivideBigInt.mod(new BigInteger("97")).intValue());
+        iBan = String.join("", Collections.nCopies(2-quotient.length(), "0")) + iBan;
+        iBan = quotient + iBan;
+        iBan = COUNTRY_CHARS + iBan;
+        return breakIntoPeaces(iBan);
+    }
+
+    private String breakIntoPeaces(String iBan) {
+        StringBuilder brokenIBAN = new StringBuilder();
+        int initialLength = iBan.length();
+        for (int i = 0; i < initialLength-1; i+=4) {
+            brokenIBAN.append(iBan.substring(0, 4)).append(" ");
+            iBan = iBan.substring(4);
+        }
+        brokenIBAN.append(iBan);
+        return brokenIBAN.toString();
     }
 }
