@@ -12,10 +12,12 @@ public class BankAccountTester {
      @param args not used
      */
     public static void main(String[] args) {
+
+        //Create Bank Accounts with optional balance and set transactionFeeDivider to 1000 (means 0.1%)
         BankAccount harrysChecking = new BankAccount(123456789);
         BankAccount momsChecking = new BankAccount(234, new BigDecimal("3000"));
         momsChecking.setTransactionFeeDivider(1000);
-
+        
         harrysChecking.deposit(new BigDecimal("1500"));
 
         momsChecking.withdraw(new BigDecimal("500"));
