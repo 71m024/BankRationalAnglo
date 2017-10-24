@@ -1,5 +1,9 @@
 package anglo;
 
+/**
+ * A Time class represents a Time value in the AngloSaxo Notation
+ * it can be changed by adding a duration
+ */
 public class Time {
 
     private static final int MIN_HR_VALUE = 1;
@@ -11,10 +15,19 @@ public class Time {
     private int hr;
     private int min;
 
+    /**
+     * Enum Object to distinguish AM and PM
+     */
     public enum Period {AM, PM}
 
     private Period p;
 
+    /**
+     * Constructs a time Object with given parameters
+     * @param hr Hours in the AngloSaxo Notation
+     * @param min Minutes in the AngloSaxo Notation
+     * @param p AM or PM
+     */
     public Time(int hr, int min, Period p) {
         if (hr < MIN_HR_VALUE || hr > MAX_HR_VALUE || min < MIN_MIN_VALUE || min > MAX_MIN_VALUE) {
             throw new IllegalArgumentException();
@@ -25,6 +38,12 @@ public class Time {
         }
     }
 
+    /**
+     * Adds a Duration to current Time object
+     * @param hr Hours to add
+     * @param min Minutes to add
+     * @return updated Time object
+     */
     public Time addDuration(int hr, int min) {
         if (hr >= 2 * MAX_HR_VALUE || min > MAX_MIN_VALUE) {
             throw new IllegalArgumentException();
@@ -36,41 +55,36 @@ public class Time {
         this.min = newTime.min;
         this.p = newTime.p;
         return this;
-
-//        this.hr += hr;
-//        this.min += min;
-//        if (this.min > MAX_MIN_VALUE) {
-//            this.hr += this.min / (MAX_MIN_VALUE + 1);
-//            this.min += this.min % (MAX_MIN_VALUE + 1);
-//        }
-//        if (this.hr > MAX_HR_VALUE) {
-//            switch (this.p) {
-//                case AM: {
-//                    this.p = Period.PM;
-//                    this.hr -= MAX_HR_VALUE;
-//                }
-//                case PM: {
-//                    this.p = Period.AM;
-//                    this.hr -= MAX_HR_VALUE;
-//                }
-//            }
-//        }
-//        return this;
     }
 
+    /**
+     * Checks whether this Time object is before other
+     * @param other compared Time object
+     * @return boolean whether true or false
+     */
     public boolean isBefore(Time other) {
         int thisInMinutes = convertTimeToMinutes(this);
         int otherInMinutes = convertTimeToMinutes(other);
         return thisInMinutes < otherInMinutes;
     }
 
+    /**
+     * Checks whether this Time object is after other
+     * @param other compared Time object
+     * @return boolean whether true or false
+     */
     public boolean isAfter(Time other) {
         int thisInMinutes = convertTimeToMinutes(this);
         int otherInMinutes = convertTimeToMinutes(other);
         return thisInMinutes > otherInMinutes;
     }
 
-    private int convertTimeToMinutes(Time time) {
+    /**
+     * Provides minutes of a Time object
+     * @param time Time object to convert into minutes
+     * @return minutes of Time object
+     */
+    private static int convertTimeToMinutes(Time time) {
         int hrForCalc = time.hr;
         if (time.hr == MAX_HR_VALUE) {
             hrForCalc -= MAX_HR_VALUE;
@@ -81,7 +95,12 @@ public class Time {
         return hrForCalc * MINUTES_IN_HOUR + time.min;
     }
 
-    private  Time convertMinutesToTime(int min) {
+    /**
+     * returns a Time object of minutes given
+     * @param min minutes to convert to
+     * @return minutes of Time object
+     */
+    private  static Time convertMinutesToTime(int min) {
         Time time;
         if (min >= MIN_MIN_VALUE && min <= MAX_MIN_VALUE) {
             time = new Time(12, min, Period.AM);
@@ -95,6 +114,10 @@ public class Time {
         return time;
     }
 
+    /**
+     * return string of Object
+     * @return
+     */
     @Override
     public String toString() {
         return this.hr + ":" + String.format("%02d", this.min) + " " + this.p;
