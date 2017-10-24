@@ -115,27 +115,56 @@ public class BankAccount {
         return balance;
     }
 
+    /**
+     * Getter of the transaction fee divider
+     *
+     * @return the transaction fee
+     */
     public int getTransactionFeeDivider() {
         return transactionFeeDivider;
     }
 
+    /**
+     * Set the transaction fee divider
+     *
+     * @param transactionFeeDivider the transaction fee divider
+     */
     public void setTransactionFeeDivider(int transactionFeeDivider) {
         this.transactionFeeDivider = transactionFeeDivider;
     }
 
+    /**
+     * Generates the iban and returns it
+     *
+     * @return the iban string
+     */
     public String generateIBAN() {
         String iBan = String.valueOf(accountNumber);
+        //add zeros to match the length of twelve digits
         iBan = String.join("", Collections.nCopies(12-iBan.length(), "0")) + iBan;
+        //add BIC
         iBan = BIC + iBan;
+        //add country_code for the quotient
         String toDivide = iBan + COUNTRY_CODE;
         BigInteger toDivideBigInt = new BigInteger(toDivide);
+        //divide (iban + country_code) by 97 and substract the rest from 98
         String quotient = String.valueOf(98 - toDivideBigInt.mod(new BigInteger("97")).intValue());
+        //add zeros to match the number of digits of two
         iBan = String.join("", Collections.nCopies(2-quotient.length(), "0")) + iBan;
+        //add the quotient
         iBan = quotient + iBan;
+        //add country_chars
         iBan = COUNTRY_CHARS + iBan;
+        //add spaces for better style
         return breakIntoPeaces(iBan);
     }
 
+    /**
+     * Splits iban into peaces of four digits.
+     *
+     * @param iBan iban to split
+     * @return splitted iban
+     */
     private String breakIntoPeaces(String iBan) {
         StringBuilder brokenIBAN = new StringBuilder();
         int initialLength = iBan.length();
