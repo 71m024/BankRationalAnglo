@@ -12,7 +12,7 @@ public class TimeTester {
         Time time = new Time(12, 0, Time.Period.AM); //Create
         System.out.println(time);
 
-        for (int i = 0; i < 24; i++) {
+        for (int i = 1; i < 24; i++) {
             System.out.println(time.addDuration(1, 0));
         }
 
@@ -26,6 +26,8 @@ public class TimeTester {
         System.out.println("1200 "  + t1200);
         Time t1800 = new Time(6,0, Time.Period.PM);
         System.out.println("1800  "  + t1800);
+
+        System.out.println("-----------");
 
         System.out.println(t0000.isBefore(t0000));//false
         System.out.println(t0000.isBefore(t1000));//true

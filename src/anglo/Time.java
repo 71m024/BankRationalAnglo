@@ -84,7 +84,7 @@ public class Time {
      * @param time Time object to convert into minutes
      * @return minutes of Time object
      */
-    private static int convertTimeToMinutes(Time time) {
+    public static int convertTimeToMinutes(Time time) {
         int hrForCalc = time.hr;
         if (time.hr == MAX_HR_VALUE) {
             hrForCalc -= MAX_HR_VALUE;
@@ -100,7 +100,7 @@ public class Time {
      * @param min minutes to convert to
      * @return minutes of Time object
      */
-    private  static Time convertMinutesToTime(int min) {
+    private static Time convertMinutesToTime(int min) {
         Time time;
         if (min >= MIN_MIN_VALUE && min <= MAX_MIN_VALUE) {
             time = new Time(12, min, Period.AM);
