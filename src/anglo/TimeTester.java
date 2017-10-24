@@ -34,10 +34,10 @@ public class TimeTester {
 
         System.out.println("-----------");
 
-        System.out.println(t1800.isAfter(t1800));
-        System.out.println(t1800.isAfter(t1200));
-        System.out.println(t1200.isAfter(t1000));
-        System.out.println(t1000.isAfter(t0000));
+        System.out.println(t1800.isAfter(t1800));//false
+        System.out.println(t1800.isAfter(t1200));//true
+        System.out.println(t1200.isAfter(t1000));//true
+        System.out.println(t1000.isAfter(t0000));//true
 
     }
 }
